@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/31 11:27:00 by gojeda            #+#    #+#             */
-/*   Updated: 2025/08/07 20:48:05 by gojeda           ###   ########.fr       */
+/*   Created: 2026/02/14 12:07:13 by gojeda            #+#    #+#             */
+/*   Updated: 2026/02/14 13:44:48 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,70 +14,98 @@
 # define PHILO_H
 
 # include <pthread.h>
+# include <sys/time.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <stdio.h>
-# include <sys/time.h>
+# include <stdbool.h>
 
-/* ************************************************************************** */
-//STRUCTURES
+/* ANSI COLORS */
+# define C_FORK   "\033[33m"
+# define C_EAT    "\033[32m"
+# define C_SLEEP  "\033[34m"
+# define C_THINK  "\033[35m"
+# define C_DIE    "\033[31m"
+# define C_RESET  "\033[0m"
 
-//Rules
-typedef struct s_rules
+typedef struct s_table	t_table;
+typedef struct s_philo	t_philo;
+
+typedef enum e_state
 {
-	int				philo_count;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				must_eat_count;
-	int				someone_died;
-	int				full_philos;
-	long			start_time;
-	pthread_mutex_t	full_mutex;
-	pthread_mutex_t	print_mutex;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	death_mutex;
-}	t_rules;
+	TAKEN_FORK,
+	EATING,
+	SLEEPING,
+	THINKING,
+	DIED
+}	t_state;
 
-//Philos
 typedef struct s_philo
 {
 	int				id;
 	int				meals_eaten;
-	long			last_meal;
+	long			last_meal_time;
 	pthread_t		thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	pthread_mutex_t	last_meal_mutex;
-	t_rules			*rules;
+	t_table			*table;
 }	t_philo;
-/* ************************************************************************** */
 
-/* ************************************************************************** */
-//FUNCTIONS
+typedef struct s_table
+{
+	int				num_philos;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	int				must_eat_count;
+	int				must_eat_flag;
+	long			start_time;
+	bool			someone_died;
+	pthread_mutex_t	death_mutex;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	meal_mutex;
+	pthread_mutex_t	*forks;
+	pthread_t		monitor_thread;
+	t_philo			*philos;
+}	t_table;
 
-//Utils
-size_t	ft_strlen(const char *str);
-int		ft_atoi(const char *nptr);
-void	print_error(char *msg);
-long	get_time_in_ms(void);
-int		parse_args(int argc, char **argv, t_rules *rules);
-t_philo	*init_philos(t_rules *rules);
-int		init_mutexes(t_rules *rules);
-void	destroy_mutex(t_philo *philos, int count, t_rules *rules);
+/* Parsing */
+int		parse_args(int argc, char **argv, t_table *table);
+int		ft_is_number(char *str);
+long	ft_atol_safe(const char *str);
 
-//Routines
-void	safe_print(t_philo *philo, char *msg);
-void	ft_usleep(long duration, t_rules *rules);
+/* Init */
+int		init_table(t_table *table);
+int		init_forks(t_table *table);
+int		init_philos(t_table *table);
+
+/* Threads */
+int		create_threads(t_table *table);
 void	*philo_routine(void *arg);
 void	*monitor_routine(void *arg);
+void	join_threads(t_table *table);
+void	safe_mutex_lock(pthread_mutex_t *mutex);
+void	safe_mutex_unlock(pthread_mutex_t *mutex);
 
-//Control
-int		life(t_rules *rules, t_philo *philos);
-int		has_someone_died(t_rules *rules);
-void	set_someone_died(t_rules *rules);
-void	control_someone_died(t_rules *rules, t_philo *philos, int position);
-int		has_eating_enough(t_rules *rules);
+/* Actions */
+void	eat(t_philo *philo);
+void	philo_sleep(t_philo *philo);
+void	think(t_philo *philo);
 
-/* ************************************************************************** */
+/* Time */
+long	get_time_ms(void);
+long	timestamp(t_table *table);
+void	precise_sleep(long time, t_table *table);
+
+/* Print */
+void	print_state(t_philo *philo, t_state state);
+
+/* Stop */
+int		simulation_stopped(t_table *table);
+void	set_death(t_table *table);
+
+/* Cleanup */
+void	cleanup(t_table *table);
+int		error_exit(char *msg);
+
 #endif
