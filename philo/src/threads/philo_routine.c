@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:46:57 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 13:22:40 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 21:06:06 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 static void	stagger_start(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
-		usleep(1000);
+		usleep(1000 + (philo->id * 10));
 }
 
 //Manejamos caso de un philo

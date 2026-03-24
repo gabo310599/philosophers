@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:56:20 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 12:58:18 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 20:09:16 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	print_state(t_philo *philo, t_state state)
 	long	time;
 
 	pthread_mutex_lock(&philo->table->print_mutex);
-	if (simulation_stopped(philo->table))
+	if (state != DIED && simulation_stopped(philo->table))
 	{
 		pthread_mutex_unlock(&philo->table->print_mutex);
 		return ;

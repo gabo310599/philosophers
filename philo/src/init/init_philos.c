@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:36:37 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 12:37:59 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 21:18:04 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,16 @@
 //Asignamos los tenedores
 static void	assign_forks(t_philo *philo, t_table *table, int i)
 {
-	philo->left_fork = &table->forks[i];
-	philo->right_fork = &table->forks[(i + 1) % table->num_philos];
+	if (i == table->num_philos - 1)
+	{
+		philo->left_fork = &table->forks[0];
+		philo->right_fork = &table->forks[i];
+	}
+	else
+	{
+		philo->left_fork = &table->forks[i];
+		philo->right_fork = &table->forks[i + 1];
+	}
 }
 
 //Inicializamos a los philos

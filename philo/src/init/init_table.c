@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:27:32 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 12:32:09 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 20:52:56 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ static int	init_mutexes(t_table *table)
 int	init_table(t_table *table)
 {
 	table->someone_died = false;
+	table->simulation_finished = false;
 	table->forks = NULL;
 	table->philos = NULL;
 	if (init_mutexes(table))

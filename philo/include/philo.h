@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:07:13 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 13:44:48 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 20:52:34 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ typedef struct s_table
 	int				must_eat_flag;
 	long			start_time;
 	bool			someone_died;
+	bool			simulation_finished;
 	pthread_mutex_t	death_mutex;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	meal_mutex;

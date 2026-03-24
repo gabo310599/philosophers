@@ -15,7 +15,6 @@ src/threads/create_threads.c \
 src/threads/monitor.c \
 src/threads/philo_routine.c \
 src/actions/eat.c \
-src/actions/forks.c \
 src/actions/sleep.c \
 src/actions/think.c \
 src/utils/cleanup.c \

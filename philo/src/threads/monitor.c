@@ -6,7 +6,7 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:59:36 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 13:04:00 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 21:39:28 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,12 @@ static int	check_death(t_philo *philo)
 	last_meal = philo->last_meal_time;
 	pthread_mutex_unlock(&philo->table->meal_mutex);
 	now = get_time_ms();
-	if ((now - last_meal) >= philo->table->time_to_die)
+	if ((now - last_meal) > philo->table->time_to_die)
 	{
-		print_state(philo, DIED);
 		pthread_mutex_lock(&philo->table->death_mutex);
 		philo->table->someone_died = true;
 		pthread_mutex_unlock(&philo->table->death_mutex);
+		print_state(philo, DIED);
 		return (1);
 	}
 	return (0);
@@ -55,7 +55,7 @@ static int	check_meals(t_table *table)
 	if (finished == table->num_philos)
 	{
 		pthread_mutex_lock(&table->death_mutex);
-		table->someone_died = true;
+		table->simulation_finished = true;
 		pthread_mutex_unlock(&table->death_mutex);
 		return (1);
 	}
@@ -71,6 +71,8 @@ void	*monitor_routine(void *arg)
 	table = (t_table *)arg;
 	while (!simulation_stopped(table))
 	{
+		if (table->simulation_finished)
+			return (NULL);
 		i = 0;
 		while (i < table->num_philos)
 		{
@@ -80,7 +82,7 @@ void	*monitor_routine(void *arg)
 		}
 		if (check_meals(table))
 			return (NULL);
-		usleep(1000);
+		usleep(500);
 	}
 	return (NULL);
 }

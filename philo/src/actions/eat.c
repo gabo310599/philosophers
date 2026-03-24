@@ -6,29 +6,46 @@
 /*   By: gojeda <gojeda@student.42madrid.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 12:49:22 by gojeda            #+#    #+#             */
-/*   Updated: 2026/02/14 12:50:49 by gojeda           ###   ########.fr       */
+/*   Updated: 2026/03/24 21:36:13 by gojeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/philo.h"
 
 //Bloqueamos el mutex de los tenedores
-static void	lock_forks(t_philo *philo)
+static int	lock_forks(t_philo *philo)
 {
-	if (philo->id % 2 == 0)
+	while (!simulation_stopped(philo->table))
 	{
-		pthread_mutex_lock(philo->right_fork);
-		print_state(philo, TAKEN_FORK);
-		pthread_mutex_lock(philo->left_fork);
-		print_state(philo, TAKEN_FORK);
+		if (philo->id % 2 == 0)
+		{
+			if (pthread_mutex_trylock(philo->right_fork) == 0)
+			{
+				print_state(philo, TAKEN_FORK);
+				if (pthread_mutex_trylock(philo->left_fork) == 0)
+				{
+					print_state(philo, TAKEN_FORK);
+					return (0);
+				}
+				pthread_mutex_unlock(philo->right_fork);
+			}
+		}
+		else
+		{
+			if (pthread_mutex_trylock(philo->left_fork) == 0)
+			{
+				print_state(philo, TAKEN_FORK);
+				if (pthread_mutex_trylock(philo->right_fork) == 0)
+				{
+					print_state(philo, TAKEN_FORK);
+					return (0);
+				}
+				pthread_mutex_unlock(philo->left_fork);
+			}
+		}
+		usleep(100);
 	}
-	else
-	{
-		pthread_mutex_lock(philo->left_fork);
-		print_state(philo, TAKEN_FORK);
-		pthread_mutex_lock(philo->right_fork);
-		print_state(philo, TAKEN_FORK);
-	}
+	return (1);
 }
 
 //Desbloqueamos el mutex de los tenedores
@@ -41,7 +58,10 @@ static void	unlock_forks(t_philo *philo)
 //Control y accion de comer de philo
 void	eat(t_philo *philo)
 {
-	lock_forks(philo);
+	if (simulation_stopped(philo->table))
+		return ;
+	if (lock_forks(philo))
+		return ;
 	pthread_mutex_lock(&philo->table->meal_mutex);
 	philo->last_meal_time = get_time_ms();
 	philo->meals_eaten++;
